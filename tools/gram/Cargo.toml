@@ -2,10 +2,15 @@
 name = "gram-data"
 version.workspace = true
 edition.workspace = true
-description = "Unified gram CLI for validating and extending gram notation"
+description = "Unified gram CLI and library for validating gram notation"
+readme = "README.md"
 license.workspace = true
 repository.workspace = true
 publish = true
+
+[lib]
+name = "gram_data"
+path = "src/lib.rs"
 
 [[bin]]
 name = "gram"
@@ -22,9 +27,10 @@ toml = "0.8"
 flate2 = "1"
 tar = "0.4"
 zip = "2"
+anyhow = "1"
 ariadne = "0.6"
 agent-skills-rs = "0.3"
-gram-lsp = { path = "../lsp" }
+gram-diagnostics = { path = "../../crates/gram-diagnostics" }
 tree-sitter-gram = { path = "../.." }
 tree-sitter = "0.25"
 

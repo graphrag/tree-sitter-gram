@@ -2,7 +2,7 @@
 
 use tree_sitter::Node;
 
-use crate::diagnostics::{Diagnostic, DiagnosticSeverity};
+use crate::analyze::{Diagnostic, DiagnosticSeverity};
 
 pub fn duplicate_key_diagnostics(root: Node, source: &[u8]) -> Vec<Diagnostic> {
     let mut out = Vec::new();

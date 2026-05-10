@@ -9,9 +9,10 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
 
-use crate::diagnostics;
-use crate::symbols::SymbolIndex;
-use crate::utf16;
+use gram_data::lint::{LintOptions, lint_source};
+use gram_data::utf16;
+use gram_data::SymbolIndex;
+use gram_diagnostics::Severity;
 
 #[derive(Clone, Debug)]
 pub struct Backend {
@@ -36,21 +37,19 @@ impl Backend {
             g.get(&uri).cloned()
         };
         let Some(text) = text else { return };
-        let (_, diags) = diagnostics::analyze_source(&text);
-        let items: Vec<Diagnostic> = diags
-            .iter()
-            .map(|d| diagnostics::to_lsp_diagnostic(&text, d))
-            .collect();
+        let opts = LintOptions { strict: false };
+        let diags = lint_source(&text, &opts);
+        let items: Vec<Diagnostic> = diags.iter().map(to_lsp_diagnostic).collect();
         self.client.publish_diagnostics(uri, items, None).await;
     }
 
     fn symbol_index(text: &str) -> SymbolIndex {
-        let tree = crate::parse::parse(text);
+        let tree = gram_data::parse(text);
         SymbolIndex::from_tree(&tree, text.as_bytes())
     }
 
     fn hover_text(text: &str, offset: usize) -> String {
-        let tree = crate::parse::parse(text);
+        let tree = gram_data::parse(text);
         let n = match tree.root_node().descendant_for_byte_range(offset, offset) {
             Some(n) => n,
             None => return String::new(),
@@ -382,6 +381,31 @@ fn position_to_byte(source: &str, pos: Position) -> usize {
         utf16 = end_utf16;
     }
     line_start + rest.len()
+}
+
+fn to_lsp_diagnostic(d: &gram_diagnostics::Diagnostic) -> Diagnostic {
+    Diagnostic {
+        range: Range {
+            start: Position {
+                line: d.range.start.line,
+                character: d.range.start.character,
+            },
+            end: Position {
+                line: d.range.end.line,
+                character: d.range.end.character,
+            },
+        },
+        severity: Some(match d.severity {
+            Severity::Error => DiagnosticSeverity::ERROR,
+            Severity::Warning => DiagnosticSeverity::WARNING,
+            Severity::Information => DiagnosticSeverity::INFORMATION,
+            Severity::Hint => DiagnosticSeverity::HINT,
+        }),
+        code: d.code.clone().map(NumberOrString::String),
+        source: Some("gram-lsp".into()),
+        message: d.message.clone(),
+        ..Default::default()
+    }
 }
 
 pub async fn run_stdio() -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {

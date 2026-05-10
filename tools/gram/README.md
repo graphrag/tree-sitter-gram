@@ -1,6 +1,6 @@
 # gram
 
-Command-line tool for working with [gram](https://github.com/gram-data/tree-sitter-gram) notation — a graph data format inspired by the property graph model.
+Command-line tool and Rust library for working with [gram](https://github.com/gram-data/tree-sitter-gram) notation — a graph data format inspired by the property graph model.
 
 > **Note:** This crate is published as `gram-data` on crates.io but installs a binary named `gram`.
 
@@ -10,29 +10,31 @@ Command-line tool for working with [gram](https://github.com/gram-data/tree-sitt
 cargo install gram-data
 ```
 
-## Usage
+## CLI usage
 
-### Validate gram files
+### Lint gram files
 
 ```sh
-# Check one or more files
-gram check path/to/file.gram
+# Lint one or more files
+gram lint path/to/file.gram
 
-# Check all .gram files in a directory
-gram check path/to/dir/
+# Lint all .gram files in a directory
+gram lint path/to/dir/
 
-# Check an inline expression
-gram check -e '(alice)-[:KNOWS]->(bob)'
+# Lint an inline expression
+gram lint -e '(alice)-[:KNOWS]->(bob)'
 
 # Read from stdin
-cat file.gram | gram check
+cat file.gram | gram lint
 
 # Exit non-zero on warnings too
-gram check --strict file.gram
+gram lint --strict file.gram
 
-# Machine-readable output
-gram check --json file.gram
+# Machine-readable JSON output
+gram lint --json file.gram
 ```
+
+> `gram check` is a legacy alias for `gram lint`.
 
 ### Manage extensions
 
@@ -88,3 +90,51 @@ gram my-tool arg  # runs gram-my-tool arg
 | `0`  | No errors (warnings allowed unless `--strict`) |
 | `1`  | Parse or semantic errors found |
 | `2`  | Tool or I/O error |
+
+## Rust library
+
+`gram-data` also publishes a library target for tools that want to lint `.gram` files or extract gram snippets from Markdown without shelling out to the binary.
+
+```toml
+[dependencies]
+gram-data = "0.3"
+```
+
+Diagnostic types are re-exported from [`gram-diagnostics`](https://crates.io/crates/gram-diagnostics), which is also used by [`cypher-data`](https://crates.io/crates/cypher-data), so multi-language tools receive a single `Diagnostic` type regardless of which linter ran.
+
+### Lint a source string
+
+```rust
+use gram_data::lint::{LintOptions, lint_source};
+
+let diags = lint_source("(alice)-[:KNOWS]->(bob)", &LintOptions { strict: false });
+```
+
+### Lint a file
+
+```rust
+use std::path::Path;
+use gram_data::lint::{LintOptions, lint_file};
+
+let diags = lint_file(Path::new("graph.gram"), &LintOptions { strict: false })?;
+```
+
+### Extract and lint gram snippets from Markdown
+
+```rust
+use gram_data::markdown::{extract_snippets, lint_markdown};
+use gram_data::lint::LintOptions;
+
+// Just extract
+let snippets = extract_snippets(doc_source);
+
+// Extract and lint in one pass
+let results = lint_markdown(doc_source, &LintOptions { strict: false });
+for (snippet, diags) in results {
+    for d in diags {
+        eprintln!("line {}: {}", snippet.fence_start_line + 1 + d.range.start.line as usize, d.message);
+    }
+}
+```
+
+Recognised fence tags: ` ```gram ` and ` ~~~gram ` (case-insensitive).
