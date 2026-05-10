@@ -4,7 +4,7 @@ pub mod remove;
 
 use clap::{Args, Subcommand};
 
-pub const SKILL_MD: &str = include_str!("../../../../skills/gram/SKILL.md");
+pub const SKILL_MD: &str = include_str!("../../skills/gram/SKILL.md");
 
 #[derive(Args)]
 #[command(about = "Manage gram agent skills")]
