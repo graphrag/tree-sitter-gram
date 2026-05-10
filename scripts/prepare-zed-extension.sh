@@ -64,8 +64,6 @@ fi
 PACKAGE_VERSION=$(node -p "require('$PROJECT_ROOT/package.json').version")
 echo "🔄 Updating extension version to $PACKAGE_VERSION..."
 
-COMMIT_SHA=$(git -C "$PROJECT_ROOT" rev-parse HEAD)
-
 if [ "$ZED_REPO_MODE" = "pub" ] || [ "$ZED_REPO_MODE" = "publish" ]; then
     # Use the public repository URL from package.json, normalized to https
     REPO_URL=$(node -p "require('$PROJECT_ROOT/package.json').repository.url")
@@ -76,20 +74,23 @@ else
     REPO_URL="file://$PROJECT_ROOT"
 fi
 
+# Rev is always the version tag — readable, stable, and set before the commit exists.
+REV="v$PACKAGE_VERSION"
+
 echo "🔗 Repository: $REPO_URL"
-echo "🔖 Rev: $COMMIT_SHA"
+echo "🔖 Rev: $REV"
 
 # Use sed in a cross-platform way
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
     sed -i '' "s/^version = \".*\"/version = \"$PACKAGE_VERSION\"/" "$ZED_EXTENSION_DIR/extension.toml"
     sed -i '' "s#^repository = \".*\"#repository = \"$REPO_URL\"#" "$ZED_EXTENSION_DIR/extension.toml"
-    sed -i '' "s/^rev = \".*\"/rev = \"$COMMIT_SHA\"/" "$ZED_EXTENSION_DIR/extension.toml"
+    sed -i '' "s/^rev = \".*\"/rev = \"$REV\"/" "$ZED_EXTENSION_DIR/extension.toml"
 else
     # Linux and others
     sed -i "s/^version = \".*\"/version = \"$PACKAGE_VERSION\"/" "$ZED_EXTENSION_DIR/extension.toml"
     sed -i "s#^repository = \".*\"#repository = \"$REPO_URL\"#" "$ZED_EXTENSION_DIR/extension.toml"
-    sed -i "s/^rev = \".*\"/rev = \"$COMMIT_SHA\"/" "$ZED_EXTENSION_DIR/extension.toml"
+    sed -i "s/^rev = \".*\"/rev = \"$REV\"/" "$ZED_EXTENSION_DIR/extension.toml"
 fi
 
 # Validate extension structure

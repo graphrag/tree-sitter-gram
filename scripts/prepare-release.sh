@@ -6,15 +6,10 @@
 #   ./scripts/prepare-release.sh 0.4.0
 #
 # Covers:
-#   tree-sitter version  →  package.json, package-lock.json, Cargo.toml (workspace),
-#                           pyproject.toml, tree-sitter.json
-#   prepare-zed-extension.sh  →  editors/zed/extension.toml version (dev mode)
+#   tree-sitter version       →  package.json, package-lock.json, Cargo.toml (workspace),
+#                                pyproject.toml, tree-sitter.json
+#   prepare-zed-extension.sh  →  editors/zed/extension.toml version and rev = "v<version>"
 #   cargo check --workspace   →  validate all Rust crates compile at new version
-#
-# Note on Zed extension rev:
-#   extension.toml needs rev = <release commit SHA> for the Zed extension registry.
-#   This script runs prepare-zed-extension.sh in dev mode (correct version, local
-#   symlinks). After committing, run the amend step printed below to fix the rev.
 
 set -euo pipefail
 
@@ -58,11 +53,11 @@ NEW_VERSION=$(node -p "require('./package.json').version")
 echo "  version: $NEW_VERSION"
 
 # ---------------------------------------------------------------------------
-# 2. Prepare Zed extension (dev mode — version only, symlinks preserved)
-#    Run ZED_REPO_MODE=pub after committing (see next steps below) so
-#    extension.toml gets the correct release commit SHA in its rev field.
+# 2. Prepare Zed extension
+#    Sets extension.toml version and rev = "v<version>" (the git tag that will
+#    be created in the next step — no amend needed).
 # ---------------------------------------------------------------------------
-echo "→ Preparing Zed extension (dev mode)..."
+echo "→ Preparing Zed extension..."
 "$SCRIPT_DIR/prepare-zed-extension.sh"
 
 # ---------------------------------------------------------------------------
@@ -81,13 +76,6 @@ git diff --name-only | sed 's/^/  /'
 echo ""
 echo "Next steps:"
 echo ""
-echo "  # 1. Commit the version bump"
 echo "  git commit -am \"Release $NEW_VERSION\""
-echo ""
-echo "  # 2. Fix extension.toml rev to the release commit SHA"
-echo "  ZED_REPO_MODE=pub $SCRIPT_DIR/prepare-zed-extension.sh"
-echo "  git commit --amend --no-edit"
-echo ""
-echo "  # 3. Tag and push (CI publishes to crates.io and npm)"
 echo "  git tag -a v$NEW_VERSION -m \"Release $NEW_VERSION\""
 echo "  git push --follow-tags"
