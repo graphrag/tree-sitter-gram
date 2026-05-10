@@ -32,7 +32,8 @@ jobs:
         with:
           cache: npm
           node-version: "24"
-      - run: npm ci --omit=peer --omit=optional
+      - run: npm ci --omit=peer --omit=optional --ignore-scripts
+      - run: node node_modules/tree-sitter-cli/install.js
       - name: Regenerate parser
         run: npx tree-sitter generate
         env:
@@ -62,12 +63,13 @@ jobs:
         with:
           cache: npm
           node-version: "24"
-      - run: npm ci --omit=peer --omit=optional
+      - run: npm ci --omit=peer --omit=optional --ignore-scripts
+      - run: node node_modules/tree-sitter-cli/install.js
       - name: Regenerate parser
         run: npx tree-sitter generate
         env:
           TREE_SITTER_ABI_VERSION: 15
-      - run: npx prebuildify -t 20.19.5
+      - run: npx prebuildify -t 24.14.1
       - uses: actions/upload-artifact@v7
         with:
           path: prebuilds/**
