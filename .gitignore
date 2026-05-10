@@ -42,3 +42,6 @@ __pycache__/
 *.log
 .env*
 .DS_Store
+
+# Claude artifacts
+.claude/*.lock
