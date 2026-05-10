@@ -3,7 +3,7 @@
 
 use tree_sitter::Node;
 
-use crate::diagnostics::{Diagnostic, DiagnosticSeverity};
+use crate::analyze::{Diagnostic, DiagnosticSeverity};
 
 /// Direct children of `subject_pattern_elements` that introduce a **named** subject (`identifier` field).
 /// Anonymous subjects (labels-only, record-only, etc.) are skipped per spec.

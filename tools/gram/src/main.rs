@@ -1,10 +1,16 @@
 use clap::{Parser, Subcommand};
 
-mod check;
+mod analyze;
 mod dispatch;
+mod elements;
 mod extension;
+mod lint;
+mod parse;
+mod record_keys;
 mod skill;
-mod types;
+mod symbols;
+mod top_level;
+pub mod utf16;
 
 #[derive(Parser)]
 #[command(name = "gram", version = env!("CARGO_PKG_VERSION"), about = "Unified gram CLI")]
@@ -15,8 +21,11 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Validate .gram files for parse and semantic errors
-    Check(check::CheckArgs),
+    /// Lint .gram files for parse and semantic errors
+    Lint(lint::LintArgs),
+    /// Validate .gram files for parse and semantic errors (alias for lint)
+    #[command(hide = true)]
+    Check(lint::LintArgs),
     /// Manage gram extensions
     Extension(extension::ExtensionArgs),
     /// Manage gram agent skills
@@ -29,7 +38,7 @@ enum Commands {
 fn main() {
     let cli = Cli::parse();
     let code = match cli.command {
-        Commands::Check(args) => check::run(args),
+        Commands::Lint(args) | Commands::Check(args) => lint::run(args),
         Commands::Extension(args) => extension::run(args),
         Commands::Skill(args) => skill::run(args),
         Commands::External(args) => dispatch::run(&args),

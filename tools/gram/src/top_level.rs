@@ -2,7 +2,7 @@
 
 use tree_sitter::Node;
 
-use crate::diagnostics::{Diagnostic, DiagnosticSeverity};
+use crate::analyze::{Diagnostic, DiagnosticSeverity};
 use crate::elements::introducing_from_path_pattern;
 
 /// Same rule as `subject_pattern_elements`: named introduction requires identifier plus labels

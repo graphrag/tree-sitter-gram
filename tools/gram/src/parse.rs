@@ -1,6 +1,5 @@
 use tree_sitter::{Language, Parser, Tree};
 
-/// Tree-sitter `Language` for Gram (cheap handle; safe to recreate).
 pub fn language() -> Language {
     let raw_fn = tree_sitter_gram::LANGUAGE.into_raw();
     unsafe {

@@ -24,6 +24,7 @@ pub struct Range {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Diagnostic {
     pub severity: Severity,
+    pub rule: String,
     pub message: String,
     pub range: Range,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -37,7 +38,7 @@ pub struct FileResult {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CheckResult {
+pub struct LintResult {
     pub schema_version: u32,
     pub tool: String,
     pub files: Vec<FileResult>,

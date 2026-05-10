@@ -1,17 +1,16 @@
 use ariadne::{Color, Label, Report, ReportKind, sources};
 use clap::Args;
-use gram_lsp::{analyze_source, DiagnosticSeverity};
-use gram_lsp::utf16::byte_range_to_lsp_range;
 use std::io::{self, Read};
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
-use crate::types::{CheckResult, Diagnostic, FileResult, Position, Range, Severity};
+use crate::analyze;
+use gram_diagnostics::{FileResult, LintResult};
 
 #[derive(Args)]
-#[command(about = "Validate .gram files for parse and semantic errors")]
-pub struct CheckArgs {
-    /// Validate an inline gram expression
+#[command(about = "Lint .gram files for parse and semantic errors")]
+pub struct LintArgs {
+    /// Lint an inline gram expression
     #[arg(short = 'e', long = "expression")]
     pub expression: Option<String>,
 
@@ -27,19 +26,18 @@ pub struct CheckArgs {
     #[arg(long)]
     pub strict: bool,
 
-    /// Files, directories, or paths to check (omit to read from stdin)
+    /// Files, directories, or paths to lint (omit to read from stdin)
     #[arg(num_args = 0..)]
     pub paths: Vec<PathBuf>,
 }
 
-/// Raw result before any rendering — keeps the source text for ariadne.
 struct SourceResult {
     path: String,
     source: String,
-    diags: Vec<gram_lsp::Diagnostic>,
+    diags: Vec<analyze::Diagnostic>,
 }
 
-pub fn run(args: CheckArgs) -> i32 {
+pub fn run(args: LintArgs) -> i32 {
     if args.tree {
         return run_tree(&args);
     }
@@ -47,10 +45,10 @@ pub fn run(args: CheckArgs) -> i32 {
     let mut results: Vec<SourceResult> = Vec::new();
 
     if let Some(expr) = &args.expression {
-        results.push(analyze(expr.clone(), "-e".to_string()));
+        results.push(analyze_path(expr.clone(), "-e".to_string()));
     } else if args.paths.is_empty() {
         match read_stdin() {
-            Ok(src) => results.push(analyze(src, "-".to_string())),
+            Ok(src) => results.push(analyze_path(src, "-".to_string())),
             Err(e) => {
                 eprintln!("error reading stdin: {e}");
                 return 2;
@@ -67,7 +65,9 @@ pub fn run(args: CheckArgs) -> i32 {
                 {
                     found = true;
                     match std::fs::read_to_string(entry.path()) {
-                        Ok(src) => results.push(analyze(src, entry.path().display().to_string())),
+                        Ok(src) => {
+                            results.push(analyze_path(src, entry.path().display().to_string()))
+                        }
                         Err(e) => {
                             eprintln!("{}: {e}", entry.path().display());
                             return 2;
@@ -79,7 +79,7 @@ pub fn run(args: CheckArgs) -> i32 {
                 }
             } else {
                 match std::fs::read_to_string(path) {
-                    Ok(src) => results.push(analyze(src, path.display().to_string())),
+                    Ok(src) => results.push(analyze_path(src, path.display().to_string())),
                     Err(e) => {
                         eprintln!("{}: {e}", path.display());
                         return 2;
@@ -89,20 +89,24 @@ pub fn run(args: CheckArgs) -> i32 {
         }
     }
 
-    let has_errors = results
-        .iter()
-        .any(|r| r.diags.iter().any(|d| matches!(d.severity, DiagnosticSeverity::Error)));
-    let has_warnings = results
-        .iter()
-        .any(|r| r.diags.iter().any(|d| matches!(d.severity, DiagnosticSeverity::Warning)));
+    let has_errors = results.iter().any(|r| {
+        r.diags
+            .iter()
+            .any(|d| matches!(d.severity, analyze::DiagnosticSeverity::Error))
+    });
+    let has_warnings = results.iter().any(|r| {
+        r.diags
+            .iter()
+            .any(|d| matches!(d.severity, analyze::DiagnosticSeverity::Warning))
+    });
 
     if args.json {
-        let check_result = CheckResult {
+        let result = LintResult {
             schema_version: 1,
             tool: format!("gram/{}", env!("CARGO_PKG_VERSION")),
             files: results.iter().map(to_file_result).collect(),
         };
-        match serde_json::to_string_pretty(&check_result) {
+        match serde_json::to_string_pretty(&result) {
             Ok(json) => println!("{json}"),
             Err(e) => {
                 eprintln!("error serializing JSON: {e}");
@@ -120,34 +124,13 @@ pub fn run(args: CheckArgs) -> i32 {
     }
 }
 
-fn analyze(source: String, path: String) -> SourceResult {
-    let (_, diags) = analyze_source(&source);
+fn analyze_path(source: String, path: String) -> SourceResult {
+    let (_, diags) = analyze::analyze_source(&source);
     SourceResult { path, source, diags }
 }
 
 fn to_file_result(r: &SourceResult) -> FileResult {
-    let diagnostics = r
-        .diags
-        .iter()
-        .map(|d| {
-            let ((start_line, start_char), (end_line, end_char)) =
-                byte_range_to_lsp_range(&r.source, d.start_byte, d.end_byte);
-            Diagnostic {
-                severity: match d.severity {
-                    DiagnosticSeverity::Error => Severity::Error,
-                    DiagnosticSeverity::Warning => Severity::Warning,
-                    DiagnosticSeverity::Information => Severity::Information,
-                    DiagnosticSeverity::Hint => Severity::Hint,
-                },
-                message: d.message.clone(),
-                range: Range {
-                    start: Position { line: start_line, character: start_char },
-                    end: Position { line: end_line, character: end_char },
-                },
-                code: d.code.clone(),
-            }
-        })
-        .collect();
+    let diagnostics = r.diags.iter().map(|d| analyze::to_public(&r.source, d)).collect();
     FileResult { path: r.path.clone(), diagnostics }
 }
 
@@ -155,14 +138,12 @@ fn print_pretty(results: &[SourceResult]) {
     for r in results {
         for d in &r.diags {
             let kind = match d.severity {
-                DiagnosticSeverity::Error => ReportKind::Error,
-                DiagnosticSeverity::Warning => ReportKind::Warning,
-                DiagnosticSeverity::Information | DiagnosticSeverity::Hint => ReportKind::Advice,
+                analyze::DiagnosticSeverity::Error => ReportKind::Error,
+                analyze::DiagnosticSeverity::Warning => ReportKind::Warning,
             };
             let color = match d.severity {
-                DiagnosticSeverity::Error => Color::Red,
-                DiagnosticSeverity::Warning => Color::Yellow,
-                DiagnosticSeverity::Information | DiagnosticSeverity::Hint => Color::Cyan,
+                analyze::DiagnosticSeverity::Error => Color::Red,
+                analyze::DiagnosticSeverity::Warning => Color::Yellow,
             };
 
             let start = byte_to_char(&r.source, d.start_byte);
@@ -190,12 +171,11 @@ fn print_pretty(results: &[SourceResult]) {
 
 fn byte_to_char(s: &str, byte: usize) -> usize {
     let byte = byte.min(s.len());
-    // Snap back to a valid char boundary so we never slice mid-codepoint.
     let byte = (0..=byte).rev().find(|&i| s.is_char_boundary(i)).unwrap_or(0);
     s[..byte].chars().count()
 }
 
-fn run_tree(args: &CheckArgs) -> i32 {
+fn run_tree(args: &LintArgs) -> i32 {
     if args.paths.len() > 1 {
         eprintln!("error: --tree accepts at most one input");
         return 2;
@@ -220,7 +200,7 @@ fn run_tree(args: &CheckArgs) -> i32 {
         }
     };
 
-    let tree = gram_lsp::parse(&src);
+    let tree = crate::parse::parse(&src);
     println!("{}", tree.root_node().to_sexp());
     0
 }

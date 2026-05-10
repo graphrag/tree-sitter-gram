@@ -1,6 +1,7 @@
 [workspace]
 members = [
     ".",
+    "crates/gram-diagnostics",
     "tools/gram",
     "tools/lsp"
 ]
