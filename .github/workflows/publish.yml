@@ -31,13 +31,13 @@ jobs:
       name: npm
       url: https://www.npmjs.com/package/@gram-data/tree-sitter-gram
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           cache: npm
           node-version: "22"
           registry-url: https://registry.npmjs.org/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: prebuilds
           pattern: prebuilds-*
@@ -64,7 +64,7 @@ jobs:
       name: pypi
       url: https://pypi.org/project/tree-sitter-gram/
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           pattern: dist-*
@@ -82,7 +82,7 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - name: Extract version from workspace
         id: version

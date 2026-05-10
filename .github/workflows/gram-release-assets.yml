@@ -38,7 +38,7 @@ jobs:
             archive_ext: zip
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -62,7 +62,7 @@ jobs:
           New-Item -ItemType Directory -Path pack
           Copy-Item "target/${{ matrix.target }}/release/gram.exe" pack/gram.exe
           Compress-Archive -Path pack/gram.exe -DestinationPath "gram-${{ matrix.target }}.zip"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: gram-${{ matrix.target }}
           path: gram-${{ matrix.target }}.${{ matrix.archive_ext }}
@@ -72,14 +72,14 @@ jobs:
     needs: build-gram
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: gram-*
           path: dist
           merge-multiple: true
       - name: List assets
         run: find dist -type f -print
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: "dist/gram-*"
         env:

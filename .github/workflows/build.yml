@@ -27,8 +27,8 @@ jobs:
     runs-on: ubuntu-24.04
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           cache: npm
           node-version: "22"
@@ -38,7 +38,7 @@ jobs:
         env:
           TREE_SITTER_ABI_VERSION: 15
       - run: npx tree-sitter build --wasm .
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           path: "*.wasm"
           name: prebuilds-wasm
@@ -57,8 +57,8 @@ jobs:
           - windows-2025
           - windows-11-arm
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           cache: npm
           node-version: "22"
@@ -68,7 +68,7 @@ jobs:
         env:
           TREE_SITTER_ABI_VERSION: 15
       - run: npx prebuildify -t 20.19.5
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           path: prebuilds/**
           name: prebuilds-${{ matrix.os }}
@@ -80,9 +80,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Set up tree-sitter CLI
@@ -114,7 +114,7 @@ jobs:
         run: pip install --upgrade pip build setuptools wheel
       - name: Build sources
         run: python -mbuild -n -s
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist-sources
           path: dist/*.tar.gz
@@ -134,7 +134,7 @@ jobs:
           - macos-15
           - macos-15-intel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up tree-sitter CLI
         uses: tree-sitter/setup-action/cli@v2
       - name: Install dependencies
@@ -162,7 +162,7 @@ jobs:
         env:
           TREE_SITTER_ABI_VERSION: 15
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Build wheels
@@ -171,7 +171,7 @@ jobs:
           python -m cibuildwheel --output-dir dist
         env:
           CIBW_ARCHS: native
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           path: dist/*.whl
           name: dist-wheels-${{ matrix.os }}
@@ -182,7 +182,7 @@ jobs:
     if: ${{ inputs.build_rust }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - name: Build release
         run: cargo build --release
