@@ -8,7 +8,6 @@ mod lint;
 mod parse;
 mod record_keys;
 mod skill;
-mod symbols;
 mod top_level;
 pub mod utf16;
 

@@ -18,6 +18,7 @@ pub(crate) struct Diagnostic {
 #[derive(Clone, Debug)]
 pub(crate) enum DiagnosticSeverity {
     Error,
+    #[allow(dead_code)] // reserved for future semantic rules
     Warning,
 }
 
