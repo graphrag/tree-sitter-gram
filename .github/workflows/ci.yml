@@ -46,7 +46,7 @@ jobs:
           node-version: "24"
       - run: npm ci --omit=peer --omit=optional --ignore-scripts
       - run: (cd node_modules/tree-sitter-cli && node install.js)
-      - run: CXXFLAGS="-std=c++20" npm rebuild tree-sitter
+      - run: CXXFLAGS="-std=c++20" npm rebuild
       - name: Regenerate parser
         run: npx tree-sitter generate
         env:
