@@ -33,7 +33,7 @@ jobs:
           cache: npm
           node-version: "24"
       - run: npm ci --omit=peer --omit=optional --ignore-scripts
-      - run: node node_modules/tree-sitter-cli/install.js
+      - run: (cd node_modules/tree-sitter-cli && node install.js)
       - name: Regenerate parser
         run: npx tree-sitter generate
         env:
@@ -64,7 +64,7 @@ jobs:
           cache: npm
           node-version: "24"
       - run: npm ci --omit=peer --omit=optional --ignore-scripts
-      - run: node node_modules/tree-sitter-cli/install.js
+      - run: (cd node_modules/tree-sitter-cli && node install.js)
       - name: Regenerate parser
         run: npx tree-sitter generate
         env:
