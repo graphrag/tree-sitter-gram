@@ -35,7 +35,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           cache: npm
-          node-version: "22"
+          node-version: "24"
           registry-url: https://registry.npmjs.org/
       - uses: actions/download-artifact@v8
         with:
