@@ -17,7 +17,7 @@ tokio = { version = "1.40", features = ["macros", "rt-multi-thread", "io-std"] }
 tower-lsp = { version = "0.20", features = ["proposed"] }
 gram-data = { path = "../gram" }
 gram-diagnostics = { path = "../../crates/gram-diagnostics" }
-tree-sitter = "0.25"
+tree-sitter = "0.26"
 
 [lib]
 path = "src/lib.rs"

@@ -1,11 +1,7 @@
 use tree_sitter::{Language, Parser, Tree};
 
 pub fn language() -> Language {
-    let raw_fn = tree_sitter_gram::LANGUAGE.into_raw();
-    unsafe {
-        let ptr = raw_fn();
-        Language::from_raw(ptr as *const tree_sitter::ffi::TSLanguage)
-    }
+    tree_sitter_gram::LANGUAGE.into()
 }
 
 pub fn parser() -> Parser {
