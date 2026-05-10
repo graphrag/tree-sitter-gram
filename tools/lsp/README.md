@@ -1,13 +1,13 @@
 # gram-lsp
 
-Rust [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) implementation for **Gram** (`.gram`) files in the [tree-sitter-gram](https://github.com/gram-data/tree-sitter-gram) workspace. It shares parsing and diagnostics with the `tree-sitter-gram` crate and the `gram` tool.
+Rust [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) implementation for **Gram** (`.gram`) files in the [tree-sitter-gram](https://github.com/gram-data/tree-sitter-gram) workspace. Parsing and diagnostics are provided by [`gram-data`](../gram/); `gram-lsp` handles the LSP wire protocol only.
 
 ## Features
 
 - **stdio LSP** — diagnostics, hover, go to definition, find references, basic completions.
 - **Semantic checks** — duplicate *named* element definitions inside a `subject_pattern_elements` list (per spec).
 
-> To validate `.gram` files from the command line, use [`gram check`](../gram/). `gram-lsp` focuses purely on the language server.
+> To validate `.gram` files from the command line, use [`gram lint`](../gram/) (`gram check` is a legacy alias). `gram-lsp` focuses purely on the language server.
 
 ## Build
 

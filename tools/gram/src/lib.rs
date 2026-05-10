@@ -1,5 +1,6 @@
 mod analyze;
 mod elements;
+pub mod markdown;
 mod parse;
 mod record_keys;
 mod symbols;

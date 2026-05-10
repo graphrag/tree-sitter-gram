@@ -2,7 +2,8 @@
 name = "gram-data"
 version.workspace = true
 edition.workspace = true
-description = "Unified gram CLI for validating and extending gram notation"
+description = "Unified gram CLI and library for validating gram notation"
+readme = "README.md"
 license.workspace = true
 repository.workspace = true
 publish = true
