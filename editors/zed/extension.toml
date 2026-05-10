@@ -1,6 +1,6 @@
 id = "gram"
 name = "Gram Language Support"
-version = "0.3.7"
+version = "0.3.8"
 schema_version = 1
 authors = ["Gram Data Contributors"]
 description = "Support for Gram notation - composable data patterns"
@@ -12,5 +12,5 @@ capabilities = [
 
 # path = "grammars/tree-sitter-gram"
 [grammars.gram]
-repository = "https://github.com/gram-data/tree-sitter-gram"
-rev = "746afa9e990c3deca83dc2a2638877aef4bef4fa"
+repository = "file:///Users/akollegger/Developer/gram-data/tree-sitter-gram"
+rev = "1f99e729c8614654d0072c54fce55ddd6ff4d1f8"
