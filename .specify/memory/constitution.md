@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report:
-Version change: (none) → 1.0.0
-Modified principles: (none - initial creation)
-Added sections: Core Principles (3 principles), Grammar Development, Testing Standards, Binding Examples
-Removed sections: (none - initial creation)
+Version change: 1.0.0 → 1.1.0
+Modified principles: (none)
+Added sections: Core Principles IV (Documentation and Skill Bundle Maintenance)
+Removed sections: (none)
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md - Constitution Check section updated
+  ⬜ .specify/templates/plan-template.md - Consider adding skill/docs update check to verification steps
   ✅ .specify/templates/spec-template.md - No changes needed (generic template)
   ✅ .specify/templates/tasks-template.md - No changes needed (generic template)
 Follow-up TODOs: None
@@ -26,6 +26,12 @@ The grammar definition in `grammar.js` MUST prioritize expressiveness and clarit
 All grammar changes MUST be accompanied by comprehensive corpus tests in `test/corpus/`. Tests MUST be illustrative, demonstrating both positive cases and edge cases for each language feature. Corpus files MUST use descriptive names with underscores (e.g., `number_values.txt`, `labeled_relationships.txt`) and follow the paired "source ===> tree" format. Each test MUST include minimal, focused examples that clearly demonstrate the feature being tested. New node types MUST be tested in both positive and negative samples. Regression tests MUST be placed near related fixtures. All tests MUST pass (`npx tree-sitter test`) before any grammar change is considered complete. Binding tests MUST be added alongside implementation for each language adapter, gating platform-specific logic with capability checks.
 
 **Rationale**: Comprehensive, illustrative tests serve multiple purposes: they validate correctness, document expected behavior, catch regressions, and provide examples for users learning the grammar. Tests that are minimal and focused are easier to understand and maintain, while comprehensive coverage ensures confidence in parser behavior across all language features.
+
+### IV. Documentation and Skill Bundle Maintenance
+
+Every new CLI subcommand, flag, or behavior change MUST be reflected in three places before the work is considered complete: (1) the embedded skill bundle at `tools/gram/skill/gram.md`, (2) any relevant `docs/` or `specs/` documentation, and (3) the quickstart or contract files under the active spec directory. The skill bundle MUST be updated so that AI coding agents operating `gram` always have accurate, up-to-date instructions matching the installed binary version. Version numbers in the skill bundle frontmatter MUST stay in sync with `CARGO_PKG_VERSION`. Documentation updates are not optional polish — they are acceptance criteria on equal footing with tests and implementation.
+
+**Rationale**: AI coding agents embed knowledge of CLI tools at install time. If the skill bundle falls behind the binary, agents will invoke flags that no longer exist, miss new capabilities, or produce incorrect commands. Treating documentation and skill bundle updates as first-class acceptance criteria — not afterthoughts — keeps the human-to-agent-to-tool chain reliable and prevents silent drift between what the binary does and what agents believe it does.
 
 ### III. Minimal Binding Examples
 
@@ -55,4 +61,4 @@ Amendments to this constitution require:
 3. Propagation of changes to dependent templates and documentation
 4. Update to the Sync Impact Report at the top of this file
 
-**Version**: 1.0.0 | **Ratified**: 2025-11-10 | **Last Amended**: 2025-11-10
+**Version**: 1.1.0 | **Ratified**: 2025-11-10 | **Last Amended**: 2026-05-14
