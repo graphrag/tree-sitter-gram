@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://gram.data/schemas/pattern/v0.1.0/pattern.json",
+  "title": "Pattern<Subject>",
+  "version": "0.1.0",
+  "description": "JSON interchange format for gram Pattern<Subject>. Produced by parsing gram notation; consumed by serializers and cross-language APIs. The top-level document is an array of Pattern objects.",
+  "$defs": {
+    "Pattern": {
+      "type": "object",
+      "required": ["subject", "elements"],
+      "additionalProperties": false,
+      "properties": {
+        "subject": { "$ref": "#/$defs/Subject" },
+        "elements": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Pattern" }
+        }
+      }
+    },
+    "Subject": {
+      "type": "object",
+      "required": ["identity", "labels", "properties"],
+      "additionalProperties": false,
+      "properties": {
+        "identity": { "type": "string" },
+        "labels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/Value" }
+        }
+      }
+    },
+    "Value": {
+      "oneOf": [
+        { "type": "integer" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "string" },
+        { "$ref": "#/$defs/ValueSymbol" },
+        { "$ref": "#/$defs/ValueTaggedString" },
+        { "$ref": "#/$defs/ValueRange" },
+        { "$ref": "#/$defs/ValueMeasurement" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Value" }
+        },
+        {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/Value" },
+          "not": { "required": ["type"] }
+        }
+      ]
+    },
+    "ValueSymbol": {
+      "type": "object",
+      "required": ["type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "symbol" },
+        "value": { "type": "string" }
+      }
+    },
+    "ValueTaggedString": {
+      "type": "object",
+      "required": ["type", "tag", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "tagged" },
+        "tag": { "type": "string" },
+        "content": { "type": "string" }
+      }
+    },
+    "ValueRange": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "range" },
+        "lower": { "type": "number" },
+        "upper": { "type": "number" }
+      }
+    },
+    "ValueMeasurement": {
+      "type": "object",
+      "required": ["type", "unit", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "measurement" },
+        "unit": { "type": "string" },
+        "value": { "type": "number" }
+      }
+    }
+  },
+  "type": "array",
+  "items": { "$ref": "#/$defs/Pattern" }
+}
