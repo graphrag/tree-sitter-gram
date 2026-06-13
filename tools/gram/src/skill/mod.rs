@@ -38,6 +38,7 @@ mod tests {
 
     #[test]
     fn bundled_skill_md_is_valid() {
-        Skill::parse(SKILL_MD).expect("bundled skills/gram/SKILL.md must be valid per the agentskills.io spec");
+        Skill::parse(SKILL_MD)
+            .expect("bundled skills/gram/SKILL.md must be valid per the agentskills.io spec");
     }
 }

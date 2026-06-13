@@ -22,7 +22,9 @@ pub mod lint {
 
     pub fn lint_source(source: &str, _opts: &LintOptions) -> Vec<Diagnostic> {
         let (_, raw) = crate::analyze::analyze_source(source);
-        raw.iter().map(|d| crate::analyze::to_public(source, d)).collect()
+        raw.iter()
+            .map(|d| crate::analyze::to_public(source, d))
+            .collect()
     }
 
     pub fn lint_file(path: &Path, opts: &LintOptions) -> anyhow::Result<Vec<Diagnostic>> {

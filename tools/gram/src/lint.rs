@@ -1,4 +1,4 @@
-use ariadne::{Color, Label, Report, ReportKind, sources};
+use ariadne::{sources, Color, Label, Report, ReportKind};
 use clap::Args;
 use std::io::{self, Read};
 use std::path::PathBuf;
@@ -126,12 +126,23 @@ pub fn run(args: LintArgs) -> i32 {
 
 fn analyze_path(source: String, path: String) -> SourceResult {
     let (_, diags) = analyze::analyze_source(&source);
-    SourceResult { path, source, diags }
+    SourceResult {
+        path,
+        source,
+        diags,
+    }
 }
 
 fn to_file_result(r: &SourceResult) -> FileResult {
-    let diagnostics = r.diags.iter().map(|d| analyze::to_public(&r.source, d)).collect();
-    FileResult { path: r.path.clone(), diagnostics }
+    let diagnostics = r
+        .diags
+        .iter()
+        .map(|d| analyze::to_public(&r.source, d))
+        .collect();
+    FileResult {
+        path: r.path.clone(),
+        diagnostics,
+    }
 }
 
 fn print_pretty(results: &[SourceResult]) {
@@ -171,7 +182,10 @@ fn print_pretty(results: &[SourceResult]) {
 
 fn byte_to_char(s: &str, byte: usize) -> usize {
     let byte = byte.min(s.len());
-    let byte = (0..=byte).rev().find(|&i| s.is_char_boundary(i)).unwrap_or(0);
+    let byte = (0..=byte)
+        .rev()
+        .find(|&i| s.is_char_boundary(i))
+        .unwrap_or(0);
     s[..byte].chars().count()
 }
 

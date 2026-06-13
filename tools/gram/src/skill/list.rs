@@ -30,7 +30,11 @@ pub fn run(args: ListArgs) -> i32 {
     let mut found = false;
     for (name, config_dir) in SUPPORTED_AGENTS {
         for root in &roots {
-            let skill_path = root.join(config_dir).join("skills").join("gram").join("SKILL.md");
+            let skill_path = root
+                .join(config_dir)
+                .join("skills")
+                .join("gram")
+                .join("SKILL.md");
             if skill_path.exists() {
                 println!("{:<8} {}", name, skill_path.display());
                 found = true;

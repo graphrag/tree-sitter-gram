@@ -19,7 +19,9 @@ fn skill_install_no_agents_detected() {
         .env("HOME", home_dir.path())
         .assert()
         .success()
-        .stdout(predicate::str::contains("No gram-compatible agents detected"));
+        .stdout(predicate::str::contains(
+            "No gram-compatible agents detected",
+        ));
 }
 
 #[test]
@@ -35,10 +37,16 @@ fn skill_install_project_local_claude() {
         .stdout(predicate::str::contains("claude"));
 
     let installed = dir.path().join(".claude/skills/gram/SKILL.md");
-    assert!(installed.exists(), "SKILL.md should be installed for claude");
+    assert!(
+        installed.exists(),
+        "SKILL.md should be installed for claude"
+    );
 
     let content = fs::read_to_string(&installed).unwrap();
-    assert!(content.contains("name: gram"), "installed SKILL.md should contain 'name: gram'");
+    assert!(
+        content.contains("name: gram"),
+        "installed SKILL.md should contain 'name: gram'"
+    );
 }
 
 #[test]
@@ -72,8 +80,10 @@ fn skill_install_agent_flag_restricts_target() {
         .success();
 
     assert!(dir.path().join(".claude/skills/gram/SKILL.md").exists());
-    assert!(!dir.path().join(".cursor/skills/gram/SKILL.md").exists(),
-        "cursor should not have been installed when --agent claude was specified");
+    assert!(
+        !dir.path().join(".cursor/skills/gram/SKILL.md").exists(),
+        "cursor should not have been installed when --agent claude was specified"
+    );
 }
 
 #[test]
@@ -101,7 +111,9 @@ fn skill_list_nothing_installed() {
         .env("HOME", home_dir.path())
         .assert()
         .success()
-        .stdout(predicate::str::contains("No gram skill installations found"));
+        .stdout(predicate::str::contains(
+            "No gram skill installations found",
+        ));
 }
 
 #[test]
@@ -173,7 +185,9 @@ fn skill_list_and_remove_roundtrip() {
         .env("HOME", home_dir.path())
         .assert()
         .success()
-        .stdout(predicate::str::contains("No gram skill installations found"));
+        .stdout(predicate::str::contains(
+            "No gram skill installations found",
+        ));
 }
 
 // --- global flag ---
@@ -191,9 +205,15 @@ fn skill_install_global_detects_home_dir_agent() {
         .stdout(predicate::str::contains("claude"));
 
     let installed = home_dir.path().join(".claude/skills/gram/SKILL.md");
-    assert!(installed.exists(), "SKILL.md should be installed globally for claude");
+    assert!(
+        installed.exists(),
+        "SKILL.md should be installed globally for claude"
+    );
     let content = fs::read_to_string(&installed).unwrap();
-    assert!(content.contains("name: gram"), "installed SKILL.md should contain 'name: gram'");
+    assert!(
+        content.contains("name: gram"),
+        "installed SKILL.md should contain 'name: gram'"
+    );
 }
 
 #[test]
@@ -241,7 +261,9 @@ fn skill_global_install_list_remove_roundtrip() {
         .env("HOME", home_dir.path())
         .assert()
         .success()
-        .stdout(predicate::str::contains("No gram skill installations found"));
+        .stdout(predicate::str::contains(
+            "No gram skill installations found",
+        ));
 }
 
 #[test]
@@ -261,7 +283,10 @@ fn skill_install_falls_back_to_global_when_no_project_local_agent() {
         .stdout(predicate::str::contains("claude"));
 
     let installed = home_dir.path().join(".claude/skills/gram/SKILL.md");
-    assert!(installed.exists(), "should install to global ~/.claude when no project-local .claude exists");
+    assert!(
+        installed.exists(),
+        "should install to global ~/.claude when no project-local .claude exists"
+    );
 }
 
 #[test]

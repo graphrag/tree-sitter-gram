@@ -30,14 +30,22 @@ pub fn byte_offset_to_position(source: &str, byte_idx: usize) -> (u32, u32) {
 }
 
 /// Byte range (start inclusive, end exclusive) to LSP `(line, char)` pairs.
-pub fn byte_range_to_lsp_range(source: &str, start_byte: usize, end_byte: usize) -> ((u32, u32), (u32, u32)) {
+pub fn byte_range_to_lsp_range(
+    source: &str,
+    start_byte: usize,
+    end_byte: usize,
+) -> ((u32, u32), (u32, u32)) {
     let start = byte_offset_to_position(source, start_byte);
     let end = byte_offset_to_position(source, end_byte.max(start_byte));
     (start, end)
 }
 
 /// Map tree-sitter `Point` to byte offset then to LSP range.
-pub fn point_range_to_lsp_range(source: &str, start: Point, end: Point) -> ((u32, u32), (u32, u32)) {
+pub fn point_range_to_lsp_range(
+    source: &str,
+    start: Point,
+    end: Point,
+) -> ((u32, u32), (u32, u32)) {
     let start_byte = point_to_byte_offset(source, start);
     let end_byte = point_to_byte_offset(source, end).max(start_byte);
     byte_range_to_lsp_range(source, start_byte, end_byte)

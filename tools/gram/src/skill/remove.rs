@@ -16,7 +16,14 @@ pub fn run(args: RemoveArgs) -> i32 {
     if let Some(ref name) = args.agent {
         if !SUPPORTED_AGENTS.iter().any(|(id, _)| *id == name.as_str()) {
             eprintln!("error: unknown agent '{name}'");
-            eprintln!("supported agents: {}", SUPPORTED_AGENTS.iter().map(|(id, _)| *id).collect::<Vec<_>>().join(", "));
+            eprintln!(
+                "supported agents: {}",
+                SUPPORTED_AGENTS
+                    .iter()
+                    .map(|(id, _)| *id)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            );
             return 2;
         }
     }
@@ -49,7 +56,11 @@ pub fn run(args: RemoveArgs) -> i32 {
         let found = roots.iter().find_map(|root| {
             let skill_dir = root.join(config_dir).join("skills").join("gram");
             let skill_path = skill_dir.join("SKILL.md");
-            if skill_path.exists() { Some((skill_dir, skill_path)) } else { None }
+            if skill_path.exists() {
+                Some((skill_dir, skill_path))
+            } else {
+                None
+            }
         });
         let (skill_dir, skill_path) = match found {
             Some(p) => p,
@@ -72,5 +83,9 @@ pub fn run(args: RemoveArgs) -> i32 {
         }
     }
 
-    if any_failure { 1 } else { 0 }
+    if any_failure {
+        1
+    } else {
+        0
+    }
 }

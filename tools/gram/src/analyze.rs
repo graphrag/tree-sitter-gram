@@ -27,12 +27,18 @@ pub(crate) fn analyze_source(source: &str) -> (Tree, Vec<Diagnostic>) {
     let tree = crate::parse::parse(source);
     let mut diags = Vec::new();
     collect_syntax_errors(tree.root_node(), source.as_bytes(), &mut diags);
-    diags.extend(elements::duplicate_element_diagnostics(tree.root_node(), source.as_bytes()));
+    diags.extend(elements::duplicate_element_diagnostics(
+        tree.root_node(),
+        source.as_bytes(),
+    ));
     diags.extend(top_level::duplicate_top_level_element_diagnostics(
         tree.root_node(),
         source.as_bytes(),
     ));
-    diags.extend(record_keys::duplicate_key_diagnostics(tree.root_node(), source.as_bytes()));
+    diags.extend(record_keys::duplicate_key_diagnostics(
+        tree.root_node(),
+        source.as_bytes(),
+    ));
     diags.sort_by_key(|d| (d.start_byte, d.end_byte));
     (tree, diags)
 }
@@ -49,8 +55,14 @@ pub(crate) fn to_public(source: &str, d: &Diagnostic) -> gram_diagnostics::Diagn
         rule: d.code.clone().unwrap_or_default(),
         message: d.message.clone(),
         range: gram_diagnostics::Range {
-            start: gram_diagnostics::Position { line: sl, character: sc },
-            end: gram_diagnostics::Position { line: el, character: ec },
+            start: gram_diagnostics::Position {
+                line: sl,
+                character: sc,
+            },
+            end: gram_diagnostics::Position {
+                line: el,
+                character: ec,
+            },
         },
         code: d.code.clone(),
         help: d.help.clone(),
@@ -93,7 +105,10 @@ fn syntax_error_help(token: &str) -> Option<String> {
     if t.starts_with('#') {
         Some("\"#\" is not valid in a node pattern; labels use a colon prefix, e.g. (node:Label), not (node#Tag)".into())
     } else if t.chars().next().map_or(false, |c| c.is_ascii_digit()) {
-        Some("identifiers must start with a letter or underscore, e.g. use `counter` not `2counter`".into())
+        Some(
+            "identifiers must start with a letter or underscore, e.g. use `counter` not `2counter`"
+                .into(),
+        )
     } else {
         None
     }

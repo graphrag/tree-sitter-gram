@@ -9,7 +9,7 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
 
-use gram_data::lint::{LintOptions, lint_source};
+use gram_data::lint::{lint_source, LintOptions};
 use gram_data::utf16;
 use gram_data::SymbolIndex;
 use gram_diagnostics::Severity;
@@ -243,7 +243,9 @@ impl LanguageServer for Backend {
         };
         let offset = position_to_byte(&text, pos);
         let idx = Self::symbol_index(&text);
-        let name = idx.reference_at(offset).or_else(|| idx.definition_at(offset));
+        let name = idx
+            .reference_at(offset)
+            .or_else(|| idx.definition_at(offset));
         let Some(name) = name else {
             return Ok(None);
         };

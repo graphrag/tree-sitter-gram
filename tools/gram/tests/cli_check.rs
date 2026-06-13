@@ -79,7 +79,9 @@ fn json_output_invalid_file_has_diagnostics() {
     let json: serde_json::Value = serde_json::from_slice(&output).expect("valid JSON");
     let files = json["files"].as_array().expect("files array");
     assert!(!files.is_empty());
-    let diags = files[0]["diagnostics"].as_array().expect("diagnostics array");
+    let diags = files[0]["diagnostics"]
+        .as_array()
+        .expect("diagnostics array");
     assert!(!diags.is_empty());
     assert_eq!(diags[0]["severity"], "error");
 }
@@ -95,10 +97,7 @@ fn tree_output_is_sexp() {
 
 #[test]
 fn directory_with_gram_files() {
-    gram()
-        .args(["check", "tests/fixtures/"])
-        .assert()
-        .code(1); // invalid.gram is in there
+    gram().args(["check", "tests/fixtures/"]).assert().code(1); // invalid.gram is in there
 }
 
 #[test]

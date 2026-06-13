@@ -22,12 +22,7 @@ fn walk(node: Node, source: &[u8], out: &mut Vec<Diagnostic>) {
     }
 }
 
-fn check_entries(
-    container: Node,
-    source: &[u8],
-    entry_kind: &str,
-    out: &mut Vec<Diagnostic>,
-) {
+fn check_entries(container: Node, source: &[u8], entry_kind: &str, out: &mut Vec<Diagnostic>) {
     let mut seen: Vec<(String, usize, usize)> = Vec::new();
     let mut c = container.walk();
     for child in container.children(&mut c) {
@@ -74,7 +69,11 @@ fn key_identity(key: Node, source: &[u8]) -> Option<String> {
             for ch in key.children(&mut c) {
                 if ch.kind() == "string_content" {
                     let t = ch.utf8_text(source).ok()?;
-                    return if t.is_empty() { None } else { Some(t.to_string()) };
+                    return if t.is_empty() {
+                        None
+                    } else {
+                        Some(t.to_string())
+                    };
                 }
             }
             None

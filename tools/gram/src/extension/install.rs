@@ -1,8 +1,8 @@
 use clap::Args;
 use std::io::Read;
 
-use super::{gram_bin_dir, load_installed, save_installed, InstalledExtension};
 use super::registry::fetch as fetch_registry;
+use super::{gram_bin_dir, load_installed, save_installed, InstalledExtension};
 
 #[derive(Args)]
 pub struct InstallArgs {
@@ -77,7 +77,11 @@ pub fn run(args: InstallArgs) -> i32 {
         }
     };
 
-    let archive_ext = if TARGET.contains("windows") { "zip" } else { "tar.gz" };
+    let archive_ext = if TARGET.contains("windows") {
+        "zip"
+    } else {
+        "tar.gz"
+    };
     let artifact = format!("{}-{}.{}", entry.bin, TARGET, archive_ext);
     let url = format!(
         "https://github.com/{}/releases/download/v{}/{}",
@@ -116,8 +120,7 @@ pub fn run(args: InstallArgs) -> i32 {
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        if let Err(e) =
-            std::fs::set_permissions(&tmp_path, std::fs::Permissions::from_mode(0o755))
+        if let Err(e) = std::fs::set_permissions(&tmp_path, std::fs::Permissions::from_mode(0o755))
         {
             eprintln!("error: failed to set permissions: {e}");
             let _ = std::fs::remove_file(&tmp_path);
@@ -236,10 +239,7 @@ fn extract_from_tar_gz(data: &[u8], bin_name: &str) -> Result<Vec<u8>, String> {
     for entry in archive.entries().map_err(|e| e.to_string())? {
         let mut entry = entry.map_err(|e| e.to_string())?;
         let path = entry.path().map_err(|e| e.to_string())?;
-        let filename = path
-            .file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("");
+        let filename = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
         if filename == bin_name {
             let mut buf = Vec::new();

@@ -1,16 +1,16 @@
-use clap::Args;
-use agent_skills_rs::{install_skill, InstallConfig};
 use agent_skills_rs::embedded::register_embedded_skill;
+use agent_skills_rs::{install_skill, InstallConfig};
+use clap::Args;
 
 use super::SKILL_MD;
 
 pub const SUPPORTED_AGENTS: &[(&str, &str)] = &[
-    ("claude",  ".claude"),
-    ("cursor",  ".cursor"),
-    ("codex",   ".codex"),
+    ("claude", ".claude"),
+    ("cursor", ".cursor"),
+    ("codex", ".codex"),
     ("copilot", ".github"),
-    ("gemini",  ".gemini"),
-    ("kiro",    ".kiro"),
+    ("gemini", ".gemini"),
+    ("kiro", ".kiro"),
 ];
 
 #[derive(Args)]
@@ -51,7 +51,14 @@ pub fn run(args: InstallArgs) -> i32 {
     if let Some(ref name) = args.agent {
         if !SUPPORTED_AGENTS.iter().any(|(id, _)| *id == name.as_str()) {
             eprintln!("error: unknown agent '{name}'");
-            eprintln!("supported agents: {}", SUPPORTED_AGENTS.iter().map(|(id, _)| *id).collect::<Vec<_>>().join(", "));
+            eprintln!(
+                "supported agents: {}",
+                SUPPORTED_AGENTS
+                    .iter()
+                    .map(|(id, _)| *id)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            );
             return 2;
         }
     }
@@ -72,7 +79,8 @@ pub fn run(args: InstallArgs) -> i32 {
         }
     };
 
-    let agents: Vec<_> = SUPPORTED_AGENTS.iter()
+    let agents: Vec<_> = SUPPORTED_AGENTS
+        .iter()
         .filter(|(id, _)| args.agent.as_deref().map_or(true, |a| a == *id))
         .collect();
 
@@ -81,7 +89,8 @@ pub fn run(args: InstallArgs) -> i32 {
 
     for (name, config_dir) in &agents {
         // Use first root where this agent's config dir exists (project-local before global).
-        let agent_root = roots.iter()
+        let agent_root = roots
+            .iter()
             .map(|r| r.join(config_dir))
             .find(|p| p.exists());
 
@@ -116,11 +125,21 @@ pub fn run(args: InstallArgs) -> i32 {
     }
 
     if !any_installed && !any_failure {
-        println!("No gram-compatible agents detected. Looked for: {}",
-            agents.iter().map(|(id, dir)| format!("{id} ({dir}/)", )).collect::<Vec<_>>().join(", "));
+        println!(
+            "No gram-compatible agents detected. Looked for: {}",
+            agents
+                .iter()
+                .map(|(id, dir)| format!("{id} ({dir}/)",))
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
     }
 
-    if any_failure { 1 } else { 0 }
+    if any_failure {
+        1
+    } else {
+        0
+    }
 }
 
 fn print_outcome(agent: &str, outcome: &Outcome) {

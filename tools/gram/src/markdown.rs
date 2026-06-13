@@ -28,7 +28,10 @@ pub fn extract_snippets(doc_source: &str) -> Vec<Snippet> {
         } else {
             // Closing fence: a line of only backticks (3+)
             if is_fence_close(trimmed) {
-                snippets.push(Snippet { source: buf.clone(), fence_start_line: fence_start });
+                snippets.push(Snippet {
+                    source: buf.clone(),
+                    fence_start_line: fence_start,
+                });
                 in_fence = false;
             } else {
                 buf.push_str(line);
@@ -49,7 +52,10 @@ pub fn lint_markdown(doc_source: &str, _opts: &LintOptions) -> Vec<(Snippet, Vec
         .into_iter()
         .map(|snippet| {
             let (_, raw) = analyze::analyze_source(&snippet.source);
-            let diags = raw.iter().map(|d| analyze::to_public(&snippet.source, d)).collect();
+            let diags = raw
+                .iter()
+                .map(|d| analyze::to_public(&snippet.source, d))
+                .collect();
             (snippet, diags)
         })
         .collect()

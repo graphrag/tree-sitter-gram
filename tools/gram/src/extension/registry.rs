@@ -18,8 +18,7 @@ struct RegistryManifest {
 }
 
 pub fn fetch() -> Result<Vec<RegistryEntry>, String> {
-    let url = std::env::var("GRAM_REGISTRY_URL")
-        .unwrap_or_else(|_| REGISTRY_URL.to_string());
+    let url = std::env::var("GRAM_REGISTRY_URL").unwrap_or_else(|_| REGISTRY_URL.to_string());
 
     let client = reqwest::blocking::Client::builder()
         .user_agent("gram-data")

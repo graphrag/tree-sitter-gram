@@ -55,7 +55,10 @@ fn direct_child_introducing_name(node: Node, source: &[u8]) -> Option<(String, u
 }
 
 /// Parser emits `identifier` + optional `labels`/`record` on `node_pattern` / `subject_pattern` (not always `subject:` wrapper).
-pub(crate) fn pattern_introducing_name(pattern: Node, source: &[u8]) -> Option<(String, usize, usize)> {
+pub(crate) fn pattern_introducing_name(
+    pattern: Node,
+    source: &[u8],
+) -> Option<(String, usize, usize)> {
     if let Some(subject) = pattern.child_by_field_name("subject") {
         if let Some(span) = subject_named_identifier_span(subject, source) {
             return Some(span);
@@ -92,11 +95,14 @@ fn subject_named_identifier_span(subject: Node, source: &[u8]) -> Option<(String
 
 /// Introducing names from a `node_pattern`, `subject_pattern`, or `relationship_pattern` subtree
 /// (used for top-level duplicate checks and relationship chains).
-pub(crate) fn introducing_from_path_pattern(node: Node, source: &[u8]) -> Vec<(String, usize, usize)> {
+pub(crate) fn introducing_from_path_pattern(
+    node: Node,
+    source: &[u8],
+) -> Vec<(String, usize, usize)> {
     match node.kind() {
-        "node_pattern" | "subject_pattern" => pattern_introducing_name(node, source)
-            .into_iter()
-            .collect(),
+        "node_pattern" | "subject_pattern" => {
+            pattern_introducing_name(node, source).into_iter().collect()
+        }
         "relationship_pattern" => {
             let mut v = Vec::new();
             if let Some(left) = node.child_by_field_name("left") {

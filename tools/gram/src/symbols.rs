@@ -55,8 +55,7 @@ fn walk(node: Node, source: &[u8], idx: &mut SymbolIndex) {
         "pattern_reference" => {
             if let Some(id) = node.child_by_field_name("identifier") {
                 if let Ok(text) = id.utf8_text(source) {
-                    idx
-                        .refs
+                    idx.refs
                         .push((text.to_string(), id.start_byte(), id.end_byte()));
                 }
             }
@@ -112,4 +111,3 @@ fn relationship_parent_field(node: Node) -> Option<&'static str> {
     }
     None
 }
-
